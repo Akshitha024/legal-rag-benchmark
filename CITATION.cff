@@ -1,0 +1,15 @@
+cff-version: 1.2.0
+title: legal-rag-benchmark
+message: "If you use this benchmark, please cite it as below."
+authors:
+  - family-names: Lingampally
+    given-names: Akshitha Reddy
+type: software
+repository-code: https://github.com/Akshitha024/legal-rag-benchmark
+license: MIT
+keywords:
+  - legal-nlp
+  - retrieval-augmented-generation
+  - information-retrieval
+  - bm25
+  - dense-retrieval
