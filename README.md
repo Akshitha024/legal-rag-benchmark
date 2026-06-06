@@ -54,32 +54,46 @@ uv run pytest -q
 
 ## Results
 
-Numbers below are from the standard run (top-k=10, default config). Update by re-running the
-commands in the Quickstart and committing `results/SUMMARY.md`.
+First-pass numbers from CUAD-QA (theatticusproject/cuad-qa), 1,000 queries × 36 unique
+contracts (the queries cap at 1K so the run finishes on a laptop; a full sweep is queued).
+All metrics are macro-averaged across queries; QPS is queries-per-second measured end to end.
 
-> **Status (2026-06-06):** The harness is wired and tested on a tiny in-repo fixture. Full
-> LegalBench-RAG runs are queued for a clean machine. The table below will be filled in from
-> `results/SUMMARY.md` once the runs complete.
+| corpus | retriever         | nDCG@10 | Recall@10 | MRR@10 | MAP@10 |   QPS |
+|--------|-------------------|--------:|----------:|-------:|-------:|------:|
+| cuad   | bm25              |   0.245 |     0.493 |  0.171 |  0.171 |  4948 |
+| cuad   | dense (bge-small) |   0.133 |     0.301 |  0.084 |  0.084 |   135 |
+| cuad   | rrf(bm25+dense)   |   0.230 |     0.459 |  0.161 |  0.161 |   159 |
 
-```text
-| corpus      | retriever          | nDCG@10 | Recall@10 | MRR@10 | MAP@10 |
-| contractnli | bm25               |   TBD   |    TBD    |  TBD   |  TBD   |
-| contractnli | dense              |   TBD   |    TBD    |  TBD   |  TBD   |
-| contractnli | rrf(bm25+dense)    |   TBD   |    TBD    |  TBD   |  TBD   |
-| contractnli | rerank(rrf(bm25+d) |   TBD   |    TBD    |  TBD   |  TBD   |
-| ...
+A few things from this run that are worth being honest about:
+
+1. **BM25 wins on CUAD.** That is not the textbook result. The reason here is the corpus
+   characteristics: each CUAD contract is 30K to 70K characters, and the dense encoder
+   (BGE-small-en, 512-token cap) only sees the first ~2,000 chars of each contract. The
+   tail of the document is invisible to dense. BM25 indexes the whole text.
+2. **Hybrid does not rescue dense.** Same root cause. RRF gives equal weight to both base
+   rankings, so a noisy dense ranking drags the fusion below pure BM25. This is exactly
+   the failure mode the RRF authors warn about when one base is much weaker than the other.
+3. **The fix for dense is chunked indexing.** Split each contract into ~512-token chunks,
+   index every chunk, then aggregate chunk scores back to doc-level (max or sum). That is
+   the next item on the TODO list and the result we expect to flip the ranking.
+4. **Recall@10 is around 50% for BM25 on this subset.** The CUAD questions are templated
+   ("Highlight the parts of this contract related to ...") and share most of their text
+   across contracts. The IR system has to disambiguate using the clause-type wording alone,
+   which is a genuinely hard signal.
+
+Reproduce with:
+
+```bash
+uv run lrb data prepare --corpus cuad --max-queries 1000
+uv run lrb eval run --corpus cuad --retrievers bm25 --retrievers dense --retrievers hybrid --topk 10
+uv run lrb report build
 ```
 
-What we expect to see (and what published LegalBench-RAG numbers suggest):
+Full per-k breakdown lives in [`results/SUMMARY.md`](./results/SUMMARY.md).
 
-1. BM25 is a tough baseline on legal text. Word overlap matters; legal queries are
-   surprisingly literal.
-2. Dense retrieval helps most on `privacy_qa` (paraphrase-heavy) and least on `contractnli`
-   (clause boundaries are lexically distinctive).
-3. RRF hybrid beats either pure approach on the macro average.
-4. Reranking pays off most when the base recall is already high (i.e. on top of hybrid).
-
-We will know whether those hold once the table is filled in.
+LegalBench-RAG span-level numbers are still TODO. That benchmark's source documents are
+hosted as a manual download on GitHub (`zeroentropy-ai/legalbenchrag`); wiring that fetcher
+up properly is the next item.
 
 ## Design notes
 
@@ -105,11 +119,14 @@ We will know whether those hold once the table is filled in.
 
 ## What's next
 
-- [ ] Span-level evaluation, matching the original LegalBench-RAG protocol
-- [ ] Add ColBERT-style late interaction as a fourth base retriever
-- [ ] Domain-specific encoders (Legal-BERT, SaulLM embeddings) once their license terms are clear
-- [ ] Caching layer for query embeddings so repeated runs do not re-encode
-- [ ] Plot scripts for nDCG vs. k and recall-precision curves
+- [ ] Chunked dense indexing (split contracts into 512-token chunks, aggregate scores back).
+      This is the obvious win after the first results came in.
+- [ ] LegalBench-RAG corpus fetcher (the source PDFs live on GitHub, not HF).
+- [ ] Span-level evaluation, matching the original LegalBench-RAG protocol.
+- [ ] Add ColBERT-style late interaction as a fourth base retriever.
+- [ ] Domain-specific encoders (Legal-BERT, SaulLM embeddings) once their license terms are clear.
+- [ ] Caching layer for query embeddings so repeated runs do not re-encode.
+- [ ] Plot scripts for nDCG vs. k and recall-precision curves.
 
 ## References
 
