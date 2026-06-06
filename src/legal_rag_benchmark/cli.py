@@ -9,7 +9,7 @@ from loguru import logger
 from tabulate import tabulate
 
 from .config import BM25Config, DenseConfig, EvalConfig, RerankConfig
-from .data.loader import ALL_CORPORA, fetch_legalbench_rag, load_from_jsonl
+from .data.loader import ALL_CORPORA, fetch_cuad, fetch_legalbench_rag, load_from_jsonl
 from .eval.runner import run_retriever, write_results
 from .retrievers.base import Retriever
 from .retrievers.bm25 import BM25Retriever
@@ -70,14 +70,22 @@ def _build_retrievers(
 def data_prepare(
     corpus: Annotated[
         list[str] | None,
-        typer.Option(help="corpus name; pass multiple times (defaults to all four)"),
+        typer.Option(help="corpus name; pass multiple times (defaults to cuad)"),
     ] = None,
     dest: Annotated[Path, typer.Option(help="destination directory")] = Path("data/processed"),
+    max_queries: Annotated[
+        int | None, typer.Option(help="cap queries (handy for smoke tests)")
+    ] = None,
 ) -> None:
-    """Download a LegalBench-RAG sub-corpus and convert to our JSONL schema."""
-    targets = corpus if corpus else list(ALL_CORPORA)
+    """Build the corpus + qrels JSONL files for one or more named corpora."""
+    targets = corpus if corpus else ["cuad"]
     for c in targets:
-        fetch_legalbench_rag(c, dest)  # type: ignore[arg-type]
+        if c == "cuad":
+            fetch_cuad(dest, max_queries=max_queries)
+        elif c in ALL_CORPORA:
+            fetch_legalbench_rag(c, dest)
+        else:
+            raise typer.BadParameter(f"unknown corpus: {c}")
 
 
 @eval_app.command("run")
