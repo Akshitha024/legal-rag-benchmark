@@ -1,0 +1,4 @@
+{"qid": "q1", "text": "What counts as confidential information?", "relevant": {"d5": 1, "d2": 1}}
+{"qid": "q2", "text": "Can the recipient share confidential information with others?", "relevant": {"d7": 1, "d1": 1}}
+{"qid": "q3", "text": "How is the agreement terminated?", "relevant": {"d3": 1}}
+{"qid": "q4", "text": "What is the cap on damages?", "relevant": {"d8": 1}}
