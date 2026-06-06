@@ -1,0 +1,22 @@
+..................                                                       [100%]
+================================ tests coverage ================================
+______________ coverage: platform darwin, python 3.11.14-final-0 _______________
+
+Name                                             Stmts   Miss  Cover
+--------------------------------------------------------------------
+src/legal_rag_benchmark/__init__.py                  1      0   100%
+src/legal_rag_benchmark/cli.py                      98     98     0%
+src/legal_rag_benchmark/config.py                   36      6    83%
+src/legal_rag_benchmark/data/__init__.py             0      0   100%
+src/legal_rag_benchmark/data/loader.py              87     45    48%
+src/legal_rag_benchmark/eval/__init__.py             0      0   100%
+src/legal_rag_benchmark/eval/metrics.py             52      3    94%
+src/legal_rag_benchmark/eval/runner.py              38      9    76%
+src/legal_rag_benchmark/retrievers/__init__.py       0      0   100%
+src/legal_rag_benchmark/retrievers/base.py          13      1    92%
+src/legal_rag_benchmark/retrievers/bm25.py          30      1    97%
+src/legal_rag_benchmark/retrievers/dense.py         42     42     0%
+src/legal_rag_benchmark/retrievers/hybrid.py        24      0   100%
+src/legal_rag_benchmark/retrievers/rerank.py        30     30     0%
+--------------------------------------------------------------------
+TOTAL                                              451    235    48%

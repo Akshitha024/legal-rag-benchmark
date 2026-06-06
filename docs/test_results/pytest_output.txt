@@ -1,0 +1,14 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.11.14, pytest-9.0.3, pluggy-1.6.0
+rootdir: /Users/mani/Projects/akshitha-portfolio/projects/legal-rag-benchmark
+configfile: pyproject.toml
+testpaths: tests
+plugins: cov-7.1.0
+collected 18 items
+
+tests/test_hybrid.py ...                                                 [ 16%]
+tests/test_loader.py ...                                                 [ 33%]
+tests/test_metrics.py .........                                          [ 83%]
+tests/test_retrievers_bm25.py ...                                        [100%]
+
+============================== 18 passed in 0.25s ==============================
