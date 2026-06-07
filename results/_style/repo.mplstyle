@@ -1,0 +1,21 @@
+# Oxford Library palette for this repo. Re-rendered charts pick this up.
+axes.facecolor: #F8F4E9
+figure.facecolor: #F8F4E9
+axes.edgecolor: #1c1c1c
+axes.labelcolor: #1c1c1c
+axes.titlecolor: #1c1c1c
+axes.titleweight: bold
+xtick.color: #1c1c1c
+ytick.color: #1c1c1c
+grid.color: #D4C9A8
+grid.alpha: 0.5
+axes.grid: True
+axes.spines.top: False
+axes.spines.right: False
+axes.prop_cycle: cycler('color', [#1B3A57, #A8763E, #5B7C99, #C9A66B, #6B8E23, #8B0000])
+font.family: sans-serif
+font.sans-serif: Helvetica, Arial, DejaVu Sans
+font.size: 10
+figure.titlesize: 14
+figure.titleweight: bold
+image.cmap: cividis
